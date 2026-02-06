@@ -17,11 +17,11 @@ module.exports = {
     },
     extend: {
       colors: {
-        // 3D Spatial Theme
+        // 3D Spatial Theme - Transparent backgrounds for canvas visibility
         background: {
-          base: '#0a0a0a',
-          surface: '#141414',
-          overlay: 'rgba(10, 10, 10, 0.8)',
+          base: 'transparent',
+          surface: 'rgba(10, 10, 10, 0.3)',
+          overlay: 'rgba(10, 10, 10, 0.5)',
         },
         text: {
           primary: '#e5e5e5',

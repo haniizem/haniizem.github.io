@@ -5,7 +5,7 @@ export function AboutSection() {
         <SectionWrapper id="about">
             <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
                 {/* Text Content */}
-                <div className="space-y-6">
+                <div className="space-y-6 bg-background-overlay/50 backdrop-blur-md rounded-2xl p-6 lg:p-8">
                     <div className="inline-block">
                         <span className="text-sm uppercase tracking-widest text-accent-primary font-medium">
                             About Me

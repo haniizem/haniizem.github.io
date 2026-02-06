@@ -57,18 +57,15 @@ function ExperienceCard({ company, role, period, location, description, isLeft, 
                 isLeft ? 'md:mr-auto md:pr-8' : 'md:ml-auto md:pl-8'
             )}
         >
-            {/* Timeline node */}
-            <div className={cn(
-                'timeline-node hidden md:block',
-                isLeft ? 'right-[-2.5rem]' : 'left-[-2.5rem]'
-            )}>
-                {isCurrent && (
-                    <div className="absolute inset-0 bg-accent-primary rounded-full animate-ping opacity-50" />
-                )}
-            </div>
-
             {/* Card */}
-            <div className="glass glass-hover rounded-xl p-6 relative overflow-hidden group">
+            <div className="glass glass-hover rounded-xl p-6 pt-8 relative group" style={{ overflow: 'clip', overflowClipMargin: '20px' }}>
+                {/* Timeline node - centered on card top border */}
+                <div className="timeline-node hidden md:block absolute -top-2 left-1/2 -translate-x-1/2 z-20">
+                    {isCurrent && (
+                        <div className="absolute inset-0 bg-accent-primary rounded-full animate-ping opacity-50" />
+                    )}
+                </div>
+
                 {/* Gradient accent line */}
                 <div
                     className={cn(

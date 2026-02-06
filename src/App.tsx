@@ -7,11 +7,12 @@ import { SkillsSection } from './components/SkillsSection';
 import { EducationSection } from './components/EducationSection';
 import { CertificationsSection } from './components/CertificationsSection';
 import { ContactSection } from './components/ContactSection';
-import { TrainBackground } from './components/TrainBackground';
+import { TrainBackgroundCanvas } from './components/TrainBackgroundCanvas';
 
 function App() {
   return (
-    <TrainBackground>
+    <>
+      <TrainBackgroundCanvas />
       <div className="relative min-h-screen">
         {/* Navigation */}
         <Navigation />
@@ -27,7 +28,7 @@ function App() {
           <ContactSection />
         </main>
       </div>
-    </TrainBackground>
+    </>
   );
 }
 

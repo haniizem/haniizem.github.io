@@ -50,12 +50,12 @@
 
 html {
   scroll-behavior: smooth;
-  background-color: var(--color-bg-base);
+  background-color: transparent;
 }
 
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  background-color: var(--color-bg-base);
+  background-color: transparent;
   color: var(--color-text-primary);
   overflow-x: hidden;
   line-height: 1.6;
