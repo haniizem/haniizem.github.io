@@ -17,7 +17,6 @@ const educationData: EducationData[] = [
         title: 'EI2I – Electronics and Computer Engineering',
         institution: 'Polytech Sorbonne',
         period: '2020 - 2023',
-        subtitle: 'Industrial Computing Track',
         projects: [
             'Wheelchair motorization kit (Arduino, BMS, GANTT/FMEA)',
             'Connected beehive IoT',
@@ -110,62 +109,61 @@ function EducationCard({ data }: { data: EducationData }) {
                 {/* Gradient line */}
                 <div className="absolute top-0 left-0 w-full h-1 gradient-primary opacity-60 group-hover:opacity-100 transition-opacity" />
 
-                {/* Header */}
-                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-4">
-                    <div>
-                        <h3 className="font-display font-bold text-lg text-text-primary group-hover:gradient-text transition-all duration-300">
-                            {data.title}
-                        </h3>
-                        <p className="text-accent-primary font-medium mt-1">{data.institution}</p>
-                        {data.subtitle && (
-                            <p className="text-text-secondary text-sm mt-1">{data.subtitle}</p>
-                        )}
-                    </div>
-                    <span className="text-text-secondary text-sm whitespace-nowrap bg-background-base/50 px-3 py-1 rounded-full">
-                        {data.period}
-                    </span>
-                </div>
-
-                {/* Projects */}
-                {data.projects && data.projects.length > 0 && (
-                    <div className="mb-4">
-                        <span className="text-xs uppercase tracking-wider text-accent-primary font-medium">
-                            Projects
-                        </span>
-                        <div className="flex flex-wrap gap-2 mt-2">
-                            {data.projects.map((project) => (
-                                <span
-                                    key={project}
-                                    className="text-sm px-3 py-1 bg-accent-primary/10 text-text-secondary border border-accent-primary/20 rounded-full"
-                                >
-                                    {project}
-                                </span>
-                            ))}
+                {/* Header - Always visible */}
+                <div className="education-header">
+                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                        <div>
+                            <h3 className="font-display font-bold text-lg text-text-primary group-hover:gradient-text transition-all duration-300">
+                                {data.title}
+                            </h3>
+                            <p className="text-accent-primary font-medium mt-1">{data.institution}</p>
+                            {data.subtitle && (
+                                <p className="text-text-secondary text-sm mt-1">{data.subtitle}</p>
+                            )}
                         </div>
+                        <span className="text-text-secondary text-sm whitespace-nowrap bg-background-base/50 px-3 py-1 rounded-full">
+                            {data.period}
+                        </span>
                     </div>
-                )}
-
-                {/* Hover hint */}
-                <div className="flex items-center gap-2 text-text-secondary/60 text-xs mt-4">
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <span>Hover for curriculum details</span>
                 </div>
-            </div>
 
-            {/* Popup */}
-            <div className="education-popup">
-                {data.curriculum.map((section, idx) => (
-                    <div key={idx} className={idx > 0 ? 'mt-4 pt-4 border-t border-border-subtle' : ''}>
-                        <div className="popup-title">{section.title}</div>
-                        <ul>
-                            {section.items.map((item, itemIdx) => (
-                                <li key={itemIdx}>{item}</li>
-                            ))}
-                        </ul>
+                {/* Content area - Gets covered by popup */}
+                <div className="education-content mt-4">
+                    {/* Projects */}
+                    {data.projects && data.projects.length > 0 && (
+                        <div className="mb-4">
+                            <span className="text-xs uppercase tracking-wider text-accent-primary font-medium">
+                                Projects
+                            </span>
+                            <div className="flex flex-wrap gap-2 mt-2">
+                                {data.projects.map((project) => (
+                                    <span
+                                        key={project}
+                                        className="text-sm px-3 py-1 bg-accent-primary/10 text-text-secondary border border-accent-primary/20 rounded-full"
+                                    >
+                                        {project}
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+
+
+                    {/* Popup - Positioned relative to content area */}
+                    <div className="education-popup">
+                        {data.curriculum.map((section, idx) => (
+                            <div key={idx} className={idx > 0 ? 'mt-4 pt-4 border-t border-border-subtle' : ''}>
+                                <div className="popup-title">{section.title}</div>
+                                <ul>
+                                    {section.items.map((item, itemIdx) => (
+                                        <li key={itemIdx}>{item}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        ))}
                     </div>
-                ))}
+                </div>
             </div>
         </div>
     );
