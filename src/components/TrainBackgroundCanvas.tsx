@@ -2,8 +2,9 @@ import { useRef, useEffect, useState, useCallback } from 'react';
 
 // Configuration
 const TOTAL_FRAMES = 240;
-const FRAME_PATH = '/frames_ai/ezgif-frame-';
-const LERP_FACTOR = 0.15; // Smooth interpolation factor
+const FRAME_PATH = '/frames_esrgan/ezgif-frame-';
+const LERP_FACTOR = 0.25; // Higher = more responsive, smoother
+const BATCH_SIZE = 20; // Load frames in batches for faster initial display
 
 // Generate frame path with zero-padded index
 const getFramePath = (index: number): string => {
@@ -14,39 +15,62 @@ const getFramePath = (index: number): string => {
 export function TrainBackgroundCanvas() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const imagesRef = useRef<HTMLImageElement[]>([]);
-    const [isLoaded, setIsLoaded] = useState(false);
+    const [isInitialLoaded, setIsInitialLoaded] = useState(false);
     const [loadProgress, setLoadProgress] = useState(0);
     const currentFrameRef = useRef(0);
     const targetFrameRef = useRef(0);
     const animationRef = useRef<number>();
 
-    // Preload all frames
+    // Preload frames with priority loading (first frames load first)
     useEffect(() => {
         let loadedCount = 0;
-        const images: HTMLImageElement[] = [];
+        const images: HTMLImageElement[] = new Array(TOTAL_FRAMES);
 
-        for (let i = 0; i < TOTAL_FRAMES; i++) {
-            const img = new Image();
-            img.src = getFramePath(i);
-            img.onload = () => {
-                loadedCount++;
-                setLoadProgress(loadedCount);
-                if (loadedCount === TOTAL_FRAMES) {
-                    imagesRef.current = images;
-                    setIsLoaded(true);
-                }
-            };
-            img.onerror = () => {
-                console.error(`Failed to load frame ${i}`);
-                loadedCount++;
-                if (loadedCount === TOTAL_FRAMES) {
-                    imagesRef.current = images;
-                    setIsLoaded(true);
-                }
-            };
-            images.push(img);
-        }
-    }, []);
+        // Priority order: load first 30 frames immediately, then rest
+        const priorityFrames = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29];
+        const remainingFrames = Array.from({ length: TOTAL_FRAMES }, (_, i) => i).filter(i => i >= 30);
+        const loadOrder = [...priorityFrames, ...remainingFrames];
+
+        const loadFrame = (index: number) => {
+            return new Promise<void>((resolve) => {
+                const img = new Image();
+                img.src = getFramePath(index);
+                img.onload = () => {
+                    images[index] = img;
+                    loadedCount++;
+                    setLoadProgress(loadedCount);
+
+                    // Show content once first 30 frames are loaded
+                    if (loadedCount >= 30 && !isInitialLoaded) {
+                        imagesRef.current = images;
+                        setIsInitialLoaded(true);
+                    }
+                    resolve();
+                };
+                img.onerror = () => {
+                    loadedCount++;
+                    setLoadProgress(loadedCount);
+                    resolve();
+                };
+            });
+        };
+
+        // Load priority frames first (in parallel batches)
+        const loadBatch = async (startIdx: number) => {
+            const batch = loadOrder.slice(startIdx, startIdx + BATCH_SIZE);
+            await Promise.all(batch.map(frameIdx => loadFrame(frameIdx)));
+
+            if (startIdx + BATCH_SIZE < loadOrder.length) {
+                // Small delay between batches to not block the main thread
+                setTimeout(() => loadBatch(startIdx + BATCH_SIZE), 10);
+            } else {
+                // All frames loaded
+                imagesRef.current = images;
+            }
+        };
+
+        loadBatch(0);
+    }, [isInitialLoaded]);
 
     // Draw frame function
     const drawFrame = useCallback((frameIndex: number) => {
@@ -57,7 +81,8 @@ export function TrainBackgroundCanvas() {
         if (!ctx) return;
 
         const images = imagesRef.current;
-        const img = images[Math.round(frameIndex)];
+        const imgIndex = Math.round(frameIndex);
+        const img = images[imgIndex];
         if (!img || !img.complete) return;
 
         // Get device pixel ratio for crisp rendering
@@ -96,12 +121,17 @@ export function TrainBackgroundCanvas() {
         // Clear canvas
         ctx.clearRect(0, 0, displayWidth, displayHeight);
 
-        // High quality rendering
-        ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = 'high';
+        // High quality rendering with sharpening
+        ctx.imageSmoothingEnabled = false; // Disable smoothing for sharper edges
 
-        // Draw the frame (no filters - pure AI upscaled quality)
+        // Apply enhancement: slight contrast and sharpness boost
+        ctx.filter = 'contrast(1.08) brightness(1.02)';
+
+        // Draw the frame with enhancements
         ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
+
+        // Reset filter for overlay
+        ctx.filter = 'none';
 
         // Add lighter overlay for better text readability
         const gradient = ctx.createLinearGradient(0, 0, 0, displayHeight);
@@ -115,7 +145,7 @@ export function TrainBackgroundCanvas() {
 
     // Smooth animation loop
     useEffect(() => {
-        if (!isLoaded) return;
+        if (!isInitialLoaded) return;
 
         drawFrame(0);
 
@@ -155,12 +185,12 @@ export function TrainBackgroundCanvas() {
                 cancelAnimationFrame(animationRef.current);
             }
         };
-    }, [isLoaded, drawFrame]);
+    }, [isInitialLoaded, drawFrame]);
 
     return (
         <>
             {/* Loading indicator */}
-            {!isLoaded && (
+            {!isInitialLoaded && (
                 <div
                     style={{
                         position: 'fixed',
@@ -176,7 +206,7 @@ export function TrainBackgroundCanvas() {
                     }}
                 >
                     <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '14px' }}>
-                        Loading... {Math.round((loadProgress / TOTAL_FRAMES) * 100)}%
+                        Loading... {Math.round((loadProgress / 30) * 100)}%
                     </div>
                 </div>
             )}
@@ -192,7 +222,7 @@ export function TrainBackgroundCanvas() {
                     height: '100vh',
                     zIndex: -1,
                     pointerEvents: 'none',
-                    display: isLoaded ? 'block' : 'none',
+                    display: isInitialLoaded ? 'block' : 'none',
                 }}
             />
         </>
