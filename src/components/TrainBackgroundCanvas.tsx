@@ -2,14 +2,14 @@ import { useRef, useEffect, useState, useCallback } from 'react';
 
 // Configuration
 const TOTAL_FRAMES = 240;
-const FRAME_PATH = '/frames_esrgan/ezgif-frame-';
+const FRAME_PATH = '/frames_webp/ezgif-frame-';
 const LERP_FACTOR = 0.25; // Higher = more responsive, smoother
-const BATCH_SIZE = 20; // Load frames in batches for faster initial display
+const BATCH_SIZE = 30; // Load frames in batches for faster initial display
 
 // Generate frame path with zero-padded index
 const getFramePath = (index: number): string => {
     const frameNumber = String(index + 1).padStart(3, '0');
-    return `${FRAME_PATH}${frameNumber}.jpg`;
+    return `${FRAME_PATH}${frameNumber}.webp`;
 };
 
 export function TrainBackgroundCanvas() {
