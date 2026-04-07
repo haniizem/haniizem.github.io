@@ -121,11 +121,12 @@ export function TrainBackgroundCanvas() {
         // Clear canvas
         ctx.clearRect(0, 0, displayWidth, displayHeight);
 
-        // High quality rendering with sharpening
-        ctx.imageSmoothingEnabled = false; // Disable smoothing for sharper edges
+        // High quality rendering
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
 
-        // Apply enhancement: slight contrast and sharpness boost
-        ctx.filter = 'contrast(1.08) brightness(1.02)';
+        // Subtle enhancement without over-processing
+        ctx.filter = 'contrast(1.05) brightness(1.01)';
 
         // Draw the frame with enhancements
         ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
